@@ -17,12 +17,15 @@ if(CMAKE_SYSTEM_NAME STREQUAL "Linux")
             URL https://github.com/microsoft/onnxruntime/releases/download/v1.18.0/onnxruntime-linux-x64-1.18.0.tgz
             SOURCE_DIR ${ONNX_PATH}
         )
+        find_package(SDL2 REQUIRED)
+        include_directories(${SDL2_INCLUDE_DIRS})
+        
         FetchContent_MakeAvailable(onnxruntime)
         add_library(onnxruntime SHARED IMPORTED )
         # You can define two import-locations: one for debug and one for release.
         set_target_properties(onnxruntime PROPERTIES IMPORTED_LOCATION ${ONNX_PATH}/lib/libonnxruntime.so)
-        add_library(openwakeword INTERFACE ${ONNX_PATH}/lib/libonnxruntime.so ${CMAKE_CURRENT_LIST_DIR}/src/openwakeword.cpp)
-        target_include_directories(openwakeword INTERFACE ${CMAKE_CURRENT_LIST_DIR}/src/ ${ONNX_PATH}/include)
-        target_link_libraries(openwakeword INTERFACE onnxruntime)
+        add_library(openwakeword ${CMAKE_CURRENT_LIST_DIR}/src/openwakeword.cpp)
+        target_include_directories(openwakeword PUBLIC ${CMAKE_CURRENT_LIST_DIR}/src/ ${ONNX_PATH}/include ${SDL2_INCLUDE_DIRS})
+        target_link_libraries(openwakeword PUBLIC onnxruntime ${SDL2_LIBRARIES})
     endif()
 endif()
