@@ -45,8 +45,8 @@ struct State
 
 struct Settings
 {
-    std::filesystem::path melModelPath = std::filesystem::path("../model/melspectrogram.onnx");
-    std::filesystem::path embModelPath = std::filesystem::path("../model/embedding_model.onnx");
+    std::filesystem::path melModelPath = std::filesystem::path(MODEL_PATH"/melspectrogram.onnx");
+    std::filesystem::path embModelPath = std::filesystem::path(MODEL_PATH"/embedding_model.onnx");
     std::vector<std::filesystem::path> wwModelPaths;
 
     size_t frameSize = 4 * 1280; // 80 ms
