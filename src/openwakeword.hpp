@@ -19,12 +19,14 @@ class openwakeword_detector
 public:
     void init(std::string path_to_model);
 
-    uint8_t detect_wakeword();
+    uint8_t detect_wakeword(std::vector<float> &samples);
     ~openwakeword_detector();
 private:    
     std::thread thr;
     std::atomic_bool _wake_word_detected = false;
     std::atomic_bool _do_exit = false;
+    std::vector<float> m_float_samples;
+    std::atomic_bool m_new_samples = false;
 };
 
 #endif /* OPENWAKEWORD_HPP */

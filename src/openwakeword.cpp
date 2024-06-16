@@ -365,7 +365,7 @@ void audioCallback(void *userdata, uint8_t *stream, int len)
     audioBuffer->insert(audioBuffer->end(), stream, stream + len);
 }
 
-void run_thread(std::string path_to_model, std::atomic_bool &wake_word_detected, std::atomic_bool &do_exit)
+void run_thread(std::string path_to_model, std::atomic_bool &wake_word_detected, std::vector<float> &floatSamples, std::atomic_bool &new_samples, std::atomic_bool &do_exit)
 {
     Settings _settings;
     _settings.wwModelPaths.push_back(std::filesystem::path(path_to_model));
@@ -378,7 +378,7 @@ void run_thread(std::string path_to_model, std::atomic_bool &wake_word_detected,
     const size_t numWakeWords = _settings.wwModelPaths.size();
     State state;
 
-    vector<float> floatSamples;
+
     vector<float> mels;
     vector<vector<float>> features(numWakeWords);
 
@@ -403,73 +403,76 @@ void run_thread(std::string path_to_model, std::atomic_bool &wake_word_detected,
     }
 
     std::cerr << "[LOG] Ready" << '\n';
-    if (SDL_Init(SDL_INIT_AUDIO) < 0)
-    {
-        std::cerr << "Failed to initialize SDL: " << SDL_GetError() << std::endl;
-    } else {
-        std::cout << "audio init success!" << '\n';
-    }
-    {
-        int nDevices = SDL_GetNumAudioDevices(SDL_TRUE);
-        fprintf(stderr, "%s: found %d capture devices:\n", __func__, nDevices);
-        for (int i = 0; i < nDevices; i++) {
-            fprintf(stderr, "%s:    - Capture device #%d: '%s'\n", __func__, i, SDL_GetAudioDeviceName(i, SDL_TRUE));
-        }
-    }
+    // if (SDL_Init(SDL_INIT_AUDIO) < 0)
+    // {
+    //     std::cerr << "Failed to initialize SDL: " << SDL_GetError() << std::endl;
+    // } else {
+    //     std::cout << "audio init success!" << '\n';
+    // }
+    // {
+    //     int nDevices = SDL_GetNumAudioDevices(SDL_TRUE);
+    //     fprintf(stderr, "%s: found %d capture devices:\n", __func__, nDevices);
+    //     for (int i = 0; i < nDevices; i++) {
+    //         fprintf(stderr, "%s:    - Capture device #%d: '%s'\n", __func__, i, SDL_GetAudioDeviceName(i, SDL_TRUE));
+    //     }
+    // }
    
      // Set up audio specification
 
-    SDL_AudioSpec capture_spec_requested;
-    SDL_AudioSpec capture_spec_obtained;
+    // SDL_AudioSpec capture_spec_requested;
+    // SDL_AudioSpec capture_spec_obtained;
 
-    SDL_zero(capture_spec_requested);
-    SDL_zero(capture_spec_obtained);
-    capture_spec_requested.freq = SAMPLE_RATE;
-    capture_spec_requested.format = AUDIO_S16SYS; // 16-bit signed PCM audio
-    capture_spec_requested.channels = NUM_CHANNELS;
-    capture_spec_requested.samples = SAMPLES_PER_CHUNK;
-    capture_spec_requested.callback = audioCallback;
+    // SDL_zero(capture_spec_requested);
+    // SDL_zero(capture_spec_obtained);
+    // capture_spec_requested.freq = SAMPLE_RATE;
+    // capture_spec_requested.format = AUDIO_S16SYS; // 16-bit signed PCM audio
+    // capture_spec_requested.channels = NUM_CHANNELS;
+    // capture_spec_requested.samples = SAMPLES_PER_CHUNK;
+    // capture_spec_requested.callback = audioCallback;
 
-    // Audio buffer to store recorded audio
-    std::vector<int16_t> audioBuffer;
+    // // Audio buffer to store recorded audio
+    // std::vector<int16_t> audioBuffer;
 
-    // Userdata to pass to the callback function
-    capture_spec_requested.userdata = &audioBuffer;
-    // Main loop
-    SDL_AudioDeviceID m_dev_id_in = SDL_OpenAudioDevice(SDL_GetAudioDeviceName(1, SDL_TRUE), SDL_TRUE, &capture_spec_requested, &capture_spec_obtained, 0);
-    if (!m_dev_id_in) {
-        fprintf(stderr, "%s: couldn't open an audio device for capture: %s!\n", __func__, SDL_GetError());
-        m_dev_id_in = 0;
-    } else {
-        fprintf(stderr, "%s: obtained spec for input device (SDL Id = %d):\n", __func__, m_dev_id_in);
-        fprintf(stderr, "%s:     - sample rate:       %d\n",                   __func__, capture_spec_obtained.freq);
-        fprintf(stderr, "%s:     - format:            %d (required: %d)\n",    __func__, capture_spec_obtained.format,
-                capture_spec_requested.format);
-        fprintf(stderr, "%s:     - channels:          %d (required: %d)\n",    __func__, capture_spec_obtained.channels,
-                capture_spec_requested.channels);
-        fprintf(stderr, "%s:     - samples per frame: %d\n",                   __func__, capture_spec_obtained.samples);
-    }
+    // // Userdata to pass to the callback function
+    // capture_spec_requested.userdata = &audioBuffer;
+    // // Main loop
+    // SDL_AudioDeviceID m_dev_id_in = SDL_OpenAudioDevice(SDL_GetAudioDeviceName(0, SDL_TRUE), SDL_TRUE, &capture_spec_requested, &capture_spec_obtained, 0);
+    // if (!m_dev_id_in) {
+    //     fprintf(stderr, "%s: couldn't open an audio device for capture: %s!\n", __func__, SDL_GetError());
+    //     m_dev_id_in = 0;
+    // } else {
+    //     fprintf(stderr, "%s: obtained spec for input device (SDL Id = %d):\n", __func__, m_dev_id_in);
+    //     fprintf(stderr, "%s:     - sample rate:       %d\n",                   __func__, capture_spec_obtained.freq);
+    //     fprintf(stderr, "%s:     - format:            %d (required: %d)\n",    __func__, capture_spec_obtained.format,
+    //             capture_spec_requested.format);
+    //     fprintf(stderr, "%s:     - channels:          %d (required: %d)\n",    __func__, capture_spec_obtained.channels,
+    //             capture_spec_requested.channels);
+    //     fprintf(stderr, "%s:     - samples per frame: %d\n",                   __func__, capture_spec_obtained.samples);
+    // }
 
     while (!do_exit)
     {
     // Start recording
-    SDL_PauseAudioDevice(m_dev_id_in, 0);
-    SDL_Delay(500);
-    SDL_PauseAudioDevice(m_dev_id_in, 1);
+    // SDL_PauseAudioDevice(m_dev_id_in, 0);
+    // SDL_Delay(500);
+    // SDL_PauseAudioDevice(m_dev_id_in, 1);
 
         {
             std::unique_lock lockSamples{state.mutSamples};
 
-            for (int16_t sample : audioBuffer)
-            {
-                // NOTE: we do NOT normalize here
-                floatSamples.push_back((float)sample);
-            }
-
+            // for (int16_t sample : audioBuffer)
+            // {
+            //     // NOTE: we do NOT normalize here
+            //     floatSamples.push_back((float)sample);
+            // }
+            if(new_samples) {
             state.samplesReady = true;
             state.cvSamples.notify_one();
-            audioBuffer.clear();
+            new_samples = false;
+            }
+            // audioBuffer.clear();
         }
+        std::this_thread::sleep_for(std::chrono::milliseconds(10));
 
     }
 
@@ -509,11 +512,13 @@ void run_thread(std::string path_to_model, std::atomic_bool &wake_word_detected,
 
 void openwakeword_detector::init(std::string path_to_model)
 {
-    thr = std::thread(run_thread, path_to_model, std::ref(_wake_word_detected), std::ref(_do_exit));
+    thr = std::thread(run_thread, path_to_model, std::ref(_wake_word_detected), std::ref(m_float_samples), std::ref(m_new_samples), std::ref(_do_exit));
 }
 
-uint8_t openwakeword_detector::detect_wakeword()
+uint8_t openwakeword_detector::detect_wakeword(std::vector<float> &samples)
 {
+    m_float_samples.insert(m_float_samples.end(), samples.begin(), samples.end());
+    m_new_samples = true;
     if(_wake_word_detected) {
         _wake_word_detected = false;
         return true;
