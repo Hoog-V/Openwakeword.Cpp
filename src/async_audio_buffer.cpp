@@ -148,7 +148,7 @@ void audio_async::callback(uint8_t * stream, int len) {
         stream += (len - (n_samples * sizeof(float)));
     }
 
-    fprintf(stderr, "%s: %zu samples, pos %zu, len %zu\n", __func__, n_samples, m_audio_pos, m_audio_len);
+    //fprintf(stderr, "%s: %zu samples, pos %zu, len %zu\n", __func__, n_samples, m_audio_pos, m_audio_len);
 
     {
         std::lock_guard<std::mutex> lock(m_mutex);
